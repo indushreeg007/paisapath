@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PaisaPath – Smart Financial Literacy and Budget Planner</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f0f3f6;--card:#fff;--ink:#0b1b33;--mute:#5d6b7e;--navy:#0b1f3a;--em:#10b981;--emd:#047857;--line:#e0e6ec;--bad:#dc2626;--warn:#b45309;--soft:#e8f8f1;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07111f;--card:#0f2038;--ink:#e8eef6;--mute:#93a4ba;--line:#1d3250;--emd:#34d399;--soft:#0e3a33;--warn:#fbbf24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#07111f;--card:#0f2038;--ink:#e8eef6;--mute:#93a4ba;--line:#1d3250;--emd:#34d399;--soft:#0e3a33;--warn:#fbbf24;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Kannada",sans-serif;background-color:var(--bg)}
+#nav{position:fixed;z-index:5;background:var(--navy);display:flex}
+#nav a{color:#c7d4e6;text-decoration:none;display:flex;align-items:center;gap:.7rem;transition:background .2s,color .2s}
+#nav a:hover,#nav a.on{background:rgba(16,185,129,.18);color:#fff}
+#nav a.on{box-shadow:inset 3px 0 0 var(--em)}
+.logo{font-weight:800;font-size:1.35rem;color:#fff;letter-spacing:.5px}.logo b{color:var(--em)}
+@media(min-width:861px){#nav{top:0;left:0;bottom:0;width:232px;flex-direction:column;padding:1.4rem .8rem;gap:.25rem}#nav a{padding:.7rem .9rem;border-radius:12px}.logo{padding:0 .9rem 1.2rem}main{margin-left:232px}}
+@media(max-width:860px){#nav{left:0;right:0;bottom:0;justify-content:space-around;padding:.3rem .2rem calc(.3rem + env(safe-area-inset-bottom,0px))}#nav a{flex-direction:column;gap:0;font-size:.68rem;padding:.35rem .3rem;border-radius:10px;text-align:center;min-width:0}#nav a.on{box-shadow:none}.logo{display:none}main{padding-bottom:5rem!important}}
+main{padding:1.2rem 1.4rem 2rem;max-width:1100px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap}
+.top h2{margin:0;font-size:1.5rem}
+.btn{background:var(--em);color:#04281c;border:0;border-radius:10px;padding:.6rem 1rem;font:inherit;font-weight:650;cursor:pointer;transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.07)}.btn:active{transform:scale(.97)}
+.btn.g{background:transparent;color:var(--ink);border:1px solid var(--line)}.btn.s{padding:.3rem .6rem;font-size:.85rem}.btn.d{background:transparent;color:var(--bad);border:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--em);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.1rem;margin-bottom:1rem}
+.card h3{margin:.1rem 0 .6rem;font-size:1.05rem}
+.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.grid.w{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.stat small{color:var(--mute);display:block}.stat b{font-size:1.6rem}.pos{color:var(--emd)}.neg{color:var(--bad)}
+.hero{background:var(--navy);color:#fff;border-radius:20px;padding:1.6rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.hero h1{margin:0;font-size:clamp(1.6rem,4vw,2.3rem)}.hero p{color:#9fe8cd;margin:.3rem 0 0;font-weight:600}
+.hero svg{position:absolute;right:0;top:0;height:100%;width:50%;opacity:.55;pointer-events:none}
+.bar{height:12px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--em);transition:width .5s}
+label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:.2rem}
+input,select{width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.row{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end}
+table{width:100%;border-collapse:collapse}td,th{padding:.5rem .3rem;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem}
+.tw{overflow-x:auto}
+.chip{display:inline-block;padding:.35rem .8rem;border:1px solid var(--line);border-radius:99px;margin:0 .35rem .45rem 0;cursor:pointer;background:var(--card);color:var(--ink);font:inherit;font-size:.9rem}
+.chip.on{background:var(--em);color:#04281c;border-color:var(--em);font-weight:650}
+.opt{display:block;width:100%;text-align:left;margin:.45rem 0;padding:.75rem .9rem;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--em);background:var(--soft)}.opt.ok{border-color:var(--em);background:var(--soft)}.opt.no{border-color:var(--bad)}
+.note{background:var(--soft);border-left:4px solid var(--em);padding:.7rem .9rem;border-radius:10px;margin:.6rem 0}.note.bad{border-color:var(--bad);background:rgba(220,38,38,.1)}.note.w{border-color:#d97706;background:rgba(217,119,6,.12)}
+.err{color:var(--bad);font-size:.85rem;min-height:1.2em}.mute{color:var(--mute)}
+.tag{font-size:.75rem;padding:.1rem .5rem;border-radius:9px;background:var(--soft);color:var(--emd)}
+a.q{display:block;text-decoration:none;color:inherit;transition:transform .2s,border-color .2s}a.q:hover{transform:translateY(-3px);border-color:var(--em)}a.q span{font-size:1.7rem}
+canvas{max-height:300px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+<nav id="nav" aria-label="Main"></nav>
+<main><div class="top"><h2 id="ttl"></h2><div>
+<button class="btn g s" id="bt" onclick="toggleTheme()" aria-label="Toggle light or dark mode">🌓</button>
+<button class="btn g s" id="bl" onclick="toggleLang()">ಕನ್ನಡ</button>
+<button class="btn d s" onclick="resetAll()">Reset demo data</button></div></div>
+<div id="app"></div></main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const R=n=>(n<0?'-₹':'₹')+Math.abs(Math.round(n)).toLocaleString('en-IN');
+const K={'Home':'ಮುಖಪುಟ','Budget':'ಬಜೆಟ್','Simulator':'ಸಿಮ್ಯುಲೇಟರ್','Survival Mode':'ಬದುಕುಳಿಯುವ ಮೋಡ್','Scam Quiz':'ವಂಚನೆ ರಸಪ್ರಶ್ನೆ','Learn':'ಕಲಿಕೆ','Welcome to PaisaPath!':'ಪೈಸಾಪಥ್‌ಗೆ ಸ್ವಾಗತ!','Your Money. Your Future. Your Path.':'ನಿಮ್ಮ ಹಣ. ನಿಮ್ಮ ಭವಿಷ್ಯ. ನಿಮ್ಮ ಹಾದಿ.','Monthly income':'ಮಾಸಿಕ ಆದಾಯ','Total expenses':'ಒಟ್ಟು ಖರ್ಚು','Remaining balance':'ಉಳಿದ ಮೊತ್ತ','Savings goal':'ಉಳಿತಾಯ ಗುರಿ','Reset demo data':'ಡೆಮೊ ಡೇಟಾ ಮರುಹೊಂದಿಸಿ','Recent transactions':'ಇತ್ತೀಚಿನ ವಹಿವಾಟುಗಳು','Add expense':'ಖರ್ಚು ಸೇರಿಸಿ'};
+const t=k=>S.lang==='kn'&&K[k]||k;
+const BASE=['Food and groceries','House rent','Electricity and bills','Education','Transportation','Healthcare','Entertainment','Shopping','Other expenses'];
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const DEF=()=>{const m=today().slice(0,8);return{income:42000,goal:8000,cats:[...BASE],lang:'en',theme:null,learn:{},best:null,qbest:null,
+tx:[['Monthly rent',12000,'House rent','02'],['Groceries',6500,'Food and groceries','04'],['Electricity bill',1800,'Electricity and bills','06'],['Bus pass',1200,'Transportation','07'],['College books',2500,'Education','09'],['Movie and snacks',900,'Entertainment','12'],['Medicines',1100,'Healthcare','14'],['Clothes',2200,'Shopping','16']].map((x,i)=>({id:i+1,n:x[0],a:x[1],c:x[2],d:m+x[3]}))}};
+let S;try{S=JSON.parse(localStorage.getItem('pp'))}catch(e){}S=S||DEF();
+const save=()=>{try{localStorage.setItem('pp',JSON.stringify(S))}catch(e){}};
+const tot=()=>S.tx.reduce((a,x)=>a+x.a,0);
+const byCat=()=>{const o={};S.tx.forEach(x=>o[x.c]=(o[x.c]||0)+x.a);return o};
+const PAL=['#10b981','#0ea5e9','#f59e0b','#8b5cf6','#ef4444','#14b8a6','#ec4899','#64748b','#84cc16','#f97316'];
+let CH={};
+function mk(id,cfg){const c=document.getElementById(id);if(!c||!window.Chart)return;if(CH[id])CH[id].destroy();Chart.defaults.color=getComputedStyle(document.documentElement).getPropertyValue('--mute');cfg.options=Object.assign({responsive:true,maintainAspectRatio:false},cfg.options||{});CH[id]=new Chart(c,cfg)}
+function donut(id){const o=byCat(),k=Object.keys(o);mk(id,{type:'doughnut',data:{labels:k,datasets:[{data:k.map(x=>o[x]),backgroundColor:PAL,borderWidth:0}]},options:{plugins:{legend:{position:'bottom'}}}})}
+const PAGES=[['home','🏠','Home'],['budget','💰','Budget'],['sim','🧪','Simulator'],['survival','🎮','Survival Mode'],['scam','🛡️','Scam Quiz'],['learn','📚','Learn']];
+const nav=()=>{$('#nav').innerHTML='<div class="logo">PAISA<b>PATH</b></div>'+PAGES.map(p=>`<a href="#${p[0]}" class="${cur===p[0]?'on':''}"><span aria-hidden="true">${p[1]}</span><span>${t(p[2])}</span></a>`).join('')};
+let cur='home';
+function route(){const h=location.hash.slice(1);cur=PAGES.some(p=>p[0]===h)?h:'home';nav();$('#ttl').textContent=t(PAGES.find(p=>p[0]===cur)[2]);$('#bl').textContent=S.lang==='kn'?'English':'ಕನ್ನಡ';
+document.documentElement.lang=S.lang;$('#app').innerHTML=({home,budget,sim:simPg,survival:surv,scam:scamPg,learn:learnPg})[cur]();
+({home:()=>donut('c1'),budget:budCharts,sim:simChart})[cur]?.();}
+addEventListener('hashchange',()=>{route();scrollTo(0,0)});
+function toggleTheme(){const dark=document.documentElement.dataset.theme?document.documentElement.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;S.theme=dark?'light':'dark';applyTheme();save();route()}
+function applyTheme(){if(S.theme)document.documentElement.dataset.theme=S.theme}
+function toggleLang(){S.lang=S.lang==='kn'?'en':'kn';save();route()}
+function resetAll(){if(confirm('Reset all demo data, quiz progress and learning progress?')){const l=S.lang,th=S.theme;S=DEF();S.lang=l;S.theme=th;G=null;Q=null;sim={i:0,a:null};edit=null;openT=null;save();route()}}
+const TIPS=['Pay yourself first: move savings out as soon as you are paid.','Track every small expense. Little leaks sink big ships.','Keep 3–6 months of expenses as an emergency fund.','Never share your OTP, UPI PIN or password with anyone.','Avoid loans for things you want but do not need.','Review your budget once a week for five minutes.'];
+let tip=new Date().getDate()%TIPS.length;
+function advice(){const e=tot(),o=byCat(),k=Object.keys(o).sort((a,b)=>o[b]-o[a]);if(!S.income||!e)return'Add your income and expenses to see personalised suggestions.';
+const p=Math.round(o[k[0]]/S.income*100),r=Math.round((S.income-e)/S.income*100);
+return `You spent ${p}% of your income on ${k[0].toLowerCase()} this month. `+(r<10?'Your savings rate is only '+r+'%, so try trimming one category.':r<20?'Your savings rate is '+r+'%. A target of 20% is a good habit.':'Great job. Your savings rate is '+r+'%.')}
+function home(){const e=tot(),b=S.income-e,sv=Math.max(0,b),p=S.goal?Math.min(100,sv/S.goal*100):0;
+const rec=[...S.tx].sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id).slice(0,5);
+const st=(l,v,c)=>`<div class="card stat"><small>${t(l)}</small><b class="${c||''}">${v}</b></div>`;
+return `<section class="hero"><svg viewBox="0 0 300 160" aria-hidden="true"><path d="M0 150C60 150 70 90 130 95S210 30 300 20" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="2 9" stroke-linecap="round"/><circle cx="130" cy="95" r="7" fill="#10b981"/><circle cx="300" cy="20" r="9" fill="#fff"/></svg><h1>${t('Welcome to PaisaPath!')}</h1><p>${t('Your Money. Your Future. Your Path.')}</p></section>
+<div class="grid">${st('Monthly income',R(S.income))}${st('Total expenses',R(e))}${st('Remaining balance',R(b),b<0?'neg':'pos')}
+<div class="card stat"><small>${t('Savings goal')}: ${R(S.goal)}</small><b>${Math.round(p)}%</b><div class="bar" role="progressbar" aria-valuenow="${Math.round(p)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div></div></div>
+<div class="grid w"><div class="card"><h3>Expense breakdown</h3>${S.tx.length?'<div style="height:280px"><canvas id="c1"></canvas></div>':'<p class="mute">No expenses yet. Add one in Budget.</p>'}</div>
+<div class="card"><h3>${t('Recent transactions')}</h3>${rec.length?'<table>'+rec.map(x=>`<tr><td>${esc(x.n)}<br><small class="mute">${esc(x.c)} · ${x.d}</small></td><td style="text-align:right"><b>${R(x.a)}</b></td></tr>`).join('')+'</table>':'<p class="mute">Nothing here yet.</p>'}</div></div>
+<div class="card"><h3>Monthly summary</h3><p>${esc(advice())}</p><p class="mute">Tip: ${TIPS[tip]} <button class="btn g s" onclick="tip=(tip+1)%TIPS.length;route()">Next tip</button></p></div>
+<div class="grid">${PAGES.slice(1).map(p=>`<a class="card q" href="#${p[0]}"><span aria-hidden="true">${p[1]}</span><h3>${t(p[2])}</h3></a>`).join('')}</div>`}
+/* ---- Budget ---- */
+let edit=null;
+function budget(){const e=tot(),b=S.income-e,x=edit&&S.tx.find(y=>y.id===edit);
+return `<div class="card"><h3>Income and savings goal</h3><div class="row"><div><label for="inc">Monthly income (₹)</label><input id="inc" type="number" min="0" value="${S.income}" onchange="setN('income',this.value)"></div><div><label for="gl">Monthly savings goal (₹)</label><input id="gl" type="number" min="0" value="${S.goal}" onchange="setN('goal',this.value)"></div></div><div class="err" id="e1"></div></div>
+<div class="card"><h3>${x?'Edit expense':t('Add expense')}</h3><div class="row"><div><label for="fn">What was it?</label><input id="fn" value="${x?esc(x.n):''}" placeholder="e.g. Vegetables"></div><div><label for="fa">Amount (₹)</label><input id="fa" type="number" min="1" value="${x?x.a:''}"></div><div><label for="fc">Category</label><select id="fc">${S.cats.map(c=>`<option ${x&&x.c===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div><div><button class="btn" onclick="addTx()">${x?'Save changes':t('Add expense')}</button>${x?' <button class="btn g" onclick="edit=null;route()">Cancel</button>':''}</div></div><div class="err" id="fe"></div>
+<div class="row" style="margin-top:.4rem"><div><label for="nc">Custom category</label><input id="nc" placeholder="e.g. Pets"></div><div><button class="btn g" onclick="addCat()">Add category</button></div></div></div>
+<div class="grid"><div class="card stat"><small>Total expenses</small><b>${R(e)}</b></div><div class="card stat"><small>Remaining balance</small><b class="${b<0?'neg':'pos'}">${R(b)}</b></div><div class="card stat"><small>Savings vs goal</small><b>${R(Math.max(0,b))} / ${R(S.goal)}</b><div class="bar"><i style="width:${S.goal?Math.min(100,Math.max(0,b)/S.goal*100):0}%"></i></div></div></div>
+<div class="note ${b<0?'bad':''}">${esc(advice())}${b<0?' You are spending more than you earn.':b>=S.goal&&S.goal?' You have reached your savings goal!':''}</div>
+<div class="grid w"><div class="card"><h3>Expense breakdown</h3>${S.tx.length?'<div style="height:280px"><canvas id="c1"></canvas></div>':'<p class="mute">Add an expense to see the chart.</p>'}</div><div class="card"><h3>Income vs expenses</h3><div style="height:280px"><canvas id="c2"></canvas></div></div></div>
+<div class="card"><h3>All transactions</h3>${S.tx.length?`<div class="tw"><table><tr><th>Date</th><th>Item</th><th>Category</th><th>Amount</th><th></th></tr>${[...S.tx].sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id).map(x=>`<tr><td>${x.d}</td><td>${esc(x.n)}</td><td><span class="tag">${esc(x.c)}</span></td><td>${R(x.a)}</td><td style="white-space:nowrap"><button class="btn g s" onclick="edit=${x.id};route();scrollTo(0,0)" aria-label="Edit ${esc(x.n)}">Edit</button> <button class="btn d s" onclick="delTx(${x.id})" aria-label="Delete ${esc(x.n)}">Delete</button></td></tr>`).join('')}</table></div>`:'<p class="mute">No transactions yet. Add your first expense above, or use Reset demo data to load samples.</p>'}</div>`}
+function budCharts(){donut('c1');const e=tot();mk('c2',{type:'bar',data:{labels:['Income','Expenses','Balance'],datasets:[{data:[S.income,e,S.income-e],backgroundColor:['#10b981','#ef4444','#0ea5e9'],borderRadius:8}]},options:{plugins:{legend:{display:false}}}})}
+function setN(k,v){v=+v;if(!(v>=0)){$('#e1').textContent='Enter a number that is zero or more.';return}S[k]=v;save();route()}
+function addTx(){const n=$('#fn').value.trim(),a=+$('#fa').value,c=$('#fc').value;if(!n||!(a>0)){$('#fe').textContent='Enter an item name and an amount above ₹0.';return}
+if(edit){Object.assign(S.tx.find(x=>x.id===edit),{n,a,c})}else S.tx.push({id:Date.now(),n,a,c,d:today()});edit=null;save();route()}
+function delTx(id){S.tx=S.tx.filter(x=>x.id!==id);save();route()}
+function addCat(){const c=$('#nc').value.trim();if(!c){$('#fe').textContent='Type a category name first.';return}if(S.cats.some(x=>x.toLowerCase()===c.toLowerCase())){$('#fe').textContent='That category already exists.';return}S.cats.push(c);save();route()}
+/* ---- Simulator ---- */
+const SC=[['Unexpected medical expense',5000,'x'],['Monthly income increases',2000,'i'],['Save an additional amount every month',500,'v'],['Electricity bill increases',1000,'x'],['Unexpected travel expense',3000,'x'],['Monthly rent increases',2000,'x']];
+let sim={i:0,a:null};
+function simCalc(){const s=SC[sim.i],a=sim.a??s[1],cur=S.income-tot(),nb=s[2]==='i'?cur+a:cur-a;return{s,a,cur,nb}}
+function simPg(){const{s,a,cur,nb}=simCalc(),ok=nb<0?'bad':nb<S.income*.1?'w':'';
+const v=s[2]==='i'?`Your balance rises from ${R(cur)} to ${R(nb)}, a gain of ${R(a)} every month. That is ${R(a*12)} a year. Consider saving part of it.`:s[2]==='v'?`Your spendable balance drops from ${R(cur)} to ${R(nb)}, but you add ${R(a)} to savings each month, ${R(a*12)} in a year.`:`If your current balance is ${R(cur)} and this change of ${R(a)} occurs, your remaining balance will become ${R(nb)}.`;
+return `<div class="card"><h3>Pick a situation</h3>${SC.map((x,i)=>`<button class="chip ${i===sim.i?'on':''}" onclick="sim={i:${i},a:null};route()">${x[0]}</button>`).join('')}
+<div class="row"><div><label for="sa">Amount (₹, change it to your own)</label><input id="sa" type="number" min="0" value="${a}" onchange="sim.a=Math.max(0,+this.value||0);route()"></div><div class="stat"><small>Your current balance (from Budget)</small><b>${R(cur)}</b></div></div></div>
+<div class="grid w"><div class="card"><h3>Before and after</h3><div style="height:260px"><canvas id="c3"></canvas></div></div><div class="card"><h3>Result</h3><p>Original balance: <b>${R(cur)}</b><br>New balance: <b class="${nb<0?'neg':'pos'}">${R(nb)}</b><br>Difference: <b>${(nb-cur>=0?'+':'')+R(nb-cur)}</b></p>
+<div class="note ${ok}"><b>${ok==='bad'?'Not manageable':ok==='w'?'Manageable, but tight':'Manageable'}</b><br>${v} ${ok==='bad'?'You would need savings, extra income or spending cuts to cover this.':ok==='w'?'Less than 10% of your income would be left, so one more surprise could hurt.':'You can absorb this without borrowing.'}</div></div></div>`}
+function simChart(){const{cur,nb}=simCalc();mk('c3',{type:'bar',data:{labels:['Before','After'],datasets:[{data:[cur,nb],backgroundColor:['#0ea5e9',nb<0?'#ef4444':'#10b981'],borderRadius:8}]},options:{plugins:{legend:{display:false}}}})}
+/* ---- Survival Mode ---- */
+const FX={inc:18000,fixed:[['Rent',6000],['Groceries',4500],['Electricity',900],['Education',1500],['Transport',1200]]};
+const LV={Easy:{m:.8,s:5000,n:5,d:'Bigger emergency fund, smaller shocks'},Medium:{m:1,s:3000,n:6,d:'Balanced challenge'},Hard:{m:1.3,s:1000,n:7,d:'Tiny savings, bigger shocks'}};
+/* choice: [text, balance×, savings×, debt×, good, lesson] (× event amount) */
+const EV=[
+{t:'Medical bill',a:2000,q:'A family member needs medical treatment costing {a}. What will you do?',c:[['Use emergency savings',0,-1,0,1,'Emergency funds exist for exactly this. Health comes first and you stay debt-free.'],['Cut entertainment and eating out',-1,0,0,1,'Trimming wants to pay for a need keeps you out of debt.'],['Borrow money',0,0,1,0,'Loans carry interest, so you repay more than you borrowed.'],['Ignore the expense',-1.8,0,0,0,'Delayed treatment usually becomes a bigger bill later.']]},
+{t:'Electricity bill',a:600,q:'The electricity bill rises unexpectedly by {a}. What will you do?',c:[['Switch to LED bulbs and cut standby use',-.5,0,0,1,'Fixing the cause cuts the cost for every future month.'],['Pay it from the monthly budget',-1,0,0,1,'Paying on time avoids fines and keeps things simple.'],['Skip the payment',-1.6,0,0,0,'Late fees and reconnection charges make it costlier.'],['Borrow from a loan app',0,0,1,0,'Borrowing for a small bill is a costly habit.']]},
+{t:'School fees',a:2500,q:'School fees of {a} are due this month. What will you do?',c:[['Pay from the monthly budget',-1,0,0,1,'Education is a priority and planned for.'],['Pay from savings',0,-1,0,1,'Fine in an emergency, but use the budget first.'],['Delay and pay a late fee',-1.3,0,0,0,'Late fees are a waste of money.'],['Take a high-interest loan',0,0,1,0,'High-interest debt for a predictable cost is a trap.']]},
+{t:'Vehicle repair',a:1800,q:'The family scooter needs a repair costing {a}. What will you do?',c:[['Compare two mechanics, then repair',-.8,0,0,1,'Comparing quotes saved money.'],['Repair now using savings',0,-1,0,1,'A good use of an emergency fund, since the scooter is needed for work.'],['Ignore the strange noise',-2.2,0,0,0,'Small faults grow into costly breakdowns.'],['Borrow to repair',0,0,1,0,'Borrowing adds interest to a cost you could cover.']]},
+{t:'Grocery prices',a:800,q:'Grocery prices go up, adding {a} to this month’s bill. What will you do?',c:[['Plan meals and buy staples in bulk',-.4,0,0,1,'Planning is the best defence against inflation.'],['Buy the same things and pay more',-1,0,0,0,'Not wrong, but you missed a chance to save.'],['Buy groceries on credit',0,0,1,0,'Credit only delays the cost and adds interest.'],['Cut down on vegetables and milk',-.2,0,0,0,'Skipping nutrition leads to health costs later.']]},
+{t:'Extra income',a:3000,q:'The family receives an unexpected {a} from a relative. What will you do?',c:[['Save most of it and spend a little',.4,.6,0,1,'Windfalls are best used to build an emergency fund.'],['Spend it all on shopping',.1,0,0,0,'It is gone with nothing left for the future.'],['Put it in a “double your money” scheme',-.3,0,0,0,'Guaranteed high returns are a classic scam warning sign.'],['Pay off any small debts first',.3,.4,0,1,'Clearing debt is a guaranteed saving.']]},
+{t:'Festival',a:2000,q:'Festival season arrives with expected spending of {a}. What will you do?',c:[['Set a festival limit from the monthly budget',-.7,0,0,1,'A limit lets you celebrate without guilt.'],['Spend freely',-1.5,0,0,0,'Unplanned spending quickly empties the budget.'],['Use a credit card, pay the minimum',0,0,1.2,0,'Minimum payments carry very high interest.'],['Use up all emergency savings',0,-1,0,0,'Savings are for emergencies, not festivals.']]}];
+let G=null;
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fixedT=FX.fixed.reduce((a,x)=>a+x[1],0);
+function sStart(l){const L=LV[l];G={l,m:L.m,bal:FX.inc-fixedT,sav:L.s,debt:0,good:0,bad:0,spent:fixedT,ev:shuf(EV).slice(0,L.n),i:0,res:null,lessons:[]};route()}
+function sPick(j){const e=G.ev[G.i],a=e.a*G.m,c=e.c[j],b=c[1]*a,s=c[2]*a,d=c[3]*a;G.bal+=b;G.sav+=s;G.debt+=d;if(G.sav<0){G.bal+=G.sav;G.sav=0}G.spent+=Math.max(0,-b)+Math.max(0,-s);
+if(c[4])G.good++;else{G.bad++;G.lessons.push(e.t+': '+c[5])}G.res={c,b,s,d,j};route()}
+function sNext(){G.res=null;G.i++;route()}
+const fam=()=>`<div class="grid"><div class="card stat"><small>Family income</small><b>${R(FX.inc)}</b></div><div class="card stat"><small>Free money this month</small><b class="${G&&G.bal<0?'neg':''}">${R(G?G.bal:FX.inc-fixedT)}</b></div><div class="card stat"><small>Emergency savings</small><b>${G?R(G.sav):'—'}</b></div><div class="card stat"><small>Debt owed</small><b class="${G&&G.debt?'neg':''}">${G?R(G.debt):'₹0'}</b></div></div>`;
+function surv(){
+if(!G)return `<div class="card"><h3>Manage the Sharma family’s budget</h3><p>The family earns <b>${R(FX.inc)}</b> a month. Fixed costs: ${FX.fixed.map(x=>x[0]+' '+R(x[1])).join(', ')}. That leaves <b>${R(FX.inc-fixedT)}</b> for everything else. Real-life surprises will come. Choose wisely.</p>${S.best?`<p class="mute">Your best score: <b>${S.best}/100</b></p>`:''}<h3>Choose difficulty</h3><div class="grid">${Object.keys(LV).map(l=>`<button class="opt" onclick="sStart('${l}')"><b>${l}</b><br><small class="mute">${LV[l].d}. ${LV[l].n} events, savings ${R(LV[l].s)}</small></button>`).join('')}</div></div>`;
+if(G.i>=G.ev.length)return end();
+const e=G.ev[G.i],a=e.a*G.m,r=G.res;
+return fam()+`<div class="card"><small class="mute">Event ${G.i+1} of ${G.ev.length} · ${G.l}</small><div class="bar" style="margin:.4rem 0 .8rem"><i style="width:${G.i/G.ev.length*100}%"></i></div><h3>${e.q.replace('{a}',R(a))}</h3>${e.c.map((c,j)=>`<button class="opt ${r?(j===r.j?(c[4]?'ok':'no'):''):''}" ${r?'disabled':''} onclick="sPick(${j})"><b>${'ABCD'[j]}.</b> ${c[0]}</button>`).join('')}
+${r?`<div class="note ${r.c[4]?'':'bad'}"><b>${r.c[4]?'Good decision':'Poor decision'}</b><br>${r.c[5]}<br><small>Effect: free money ${r.b>=0?'+':''}${R(r.b)}, savings ${r.s>=0?'+':''}${R(r.s)}${r.d?`, debt +${R(r.d)}`:''}</small></div><button class="btn" onclick="sNext()">${G.i+1>=G.ev.length?'See my results':'Next event'}</button>`:''}</div>`}
+function end(){const L=LV[G.l],fin=G.bal+G.sav-G.debt*1.2,n=G.ev.length,sc=Math.max(0,Math.min(100,Math.round(G.good/n*70+Math.max(0,Math.min(30,fin/(FX.inc-fixedT+L.s)*20)))));
+if(!S.best||sc>S.best){S.best=sc;save()}
+const fb=sc>=80?'Excellent! You protect needs, avoid debt and use savings wisely.':sc>=50?'Good effort. Keep building your emergency fund and avoid borrowing for small costs.':'Tough month. Try again and focus on needs first, savings second, and avoiding loans.';
+return `<div class="card"><h3>Month complete (${G.l})</h3><div class="grid"><div class="card stat"><small>Final balance (money + savings − debt with interest)</small><b class="${fin<0?'neg':'pos'}">${R(fin)}</b></div><div class="card stat"><small>Total expenses</small><b>${R(G.spent)}</b></div><div class="card stat"><small>Good / poor decisions</small><b>${G.good} / ${G.bad}</b></div><div class="card stat"><small>Final score</small><b>${sc}/100</b></div></div><div class="note">${fb}</div>
+${G.lessons.length?'<h3>What to learn</h3><ul>'+G.lessons.map(l=>`<li>${esc(l)}</li>`).join('')+'</ul>':'<p>No poor decisions. Perfect run!</p>'}<button class="btn" onclick="G=null;route()">Restart game</button></div>`}
+/* ---- Scam Quiz ---- */
+const QS=[
+['“Congratulations! You won ₹25,00,000 in the Lucky Mobile Draw. Pay ₹4,999 processing fee at bit.ly/claim-now.”',1,'You cannot win a lottery you never entered, and real prizes never need a fee. Short links hide the real site.','Delete and block. Never pay to receive money.'],
+['A caller says: “I’m from your bank. Your account will freeze. Please read me the OTP you just received.”',1,'Banks never ask for your OTP. Urgency and fear are pressure tactics.','Hang up and call the number on your bank card. Never share an OTP.'],
+['A message says: “Get a ₹2,000 refund. Open this link and enter your UPI PIN to accept.”',1,'You never need a PIN to receive money. Entering it sends money out.','Your UPI PIN is only for sending money. Ignore such links.'],
+['“Dear customer, your KYC expires today. Update at sbi-kyc-update.xyz or your account will be blocked.”',1,'Fake look-alike web address, a threat and a deadline. Banks do not send KYC links by SMS.','Visit your branch or the official app typed by hand.'],
+['“Work from home! Earn ₹5,000 daily by liking videos. Pay a ₹1,500 registration fee to start.”',1,'Genuine employers do not charge you to work. Unrealistic pay for easy tasks is a red flag.','Research the company. Never pay to get a job.'],
+['“Invest ₹10,000 and get guaranteed 40% returns every month. No risk!”',1,'No real investment guarantees high returns without risk. This is a Ponzi-style trap.','Check that the scheme is registered with SEBI or RBI.'],
+['A caller claiming to be police says your Aadhaar is linked to a crime. Transfer money to a “safe account” to clear your name.',1,'Police never ask for money over a call. There is no such thing as a safe account for payments.','Hang up. Report it on 1930 or cybercrime.gov.in.'],
+['A buyer on a marketplace sends a QR code and says: “Scan it to receive your payment.”',1,'Scanning a QR code always sends money. Receiving needs no scan.','Share your own QR or UPI ID to receive money, and never scan to collect.'],
+['SMS from your bank’s official sender ID: “₹500 debited at a store on card ending 1234. If this was not you, call the number on the back of your card.” No link or OTP asked.',0,'It informs you and asks for nothing. It tells you to use the number on your own card.','Still check your statement. When unsure, call the number printed on your card.']];
+let Q=null;
+function scamPg(){const w='<div class="note w"><b>Never share your OTP, UPI PIN, passwords or banking credentials with anyone.</b> Not even someone who says they are from your bank.</div>';
+if(!Q)return w+`<div class="card"><h3>Can you spot the scam?</h3><p>${QS.length} real-life style messages. Decide: Safe or Suspicious?</p>${S.qbest!=null?`<p class="mute">Best score: ${S.qbest}%</p>`:''}<button class="btn" onclick="Q={i:0,c:0,r:null};route()">Start quiz</button></div>`;
+if(Q.i>=QS.length){const p=Math.round(Q.c/QS.length*100);return w+`<div class="card"><h3>Quiz complete</h3><div class="grid"><div class="card stat"><small>Score</small><b>${Q.c}/${QS.length}</b></div><div class="card stat"><small>Correct / Incorrect</small><b>${Q.c} / ${QS.length-Q.c}</b></div><div class="card stat"><small>Percentage</small><b>${p}%</b></div></div><div class="note ${p<60?'bad':''}">${p>=85?'Scam-proof! Share what you know with family.':p>=60?'Good, but stay alert. Re-read the warning signs.':'You are at risk. Retake and read each explanation.'}</div><button class="btn" onclick="Q=null;route()">Retake quiz</button></div>`}
+const q=QS[Q.i],r=Q.r;
+return w+`<div class="card"><small class="mute">Question ${Q.i+1} of ${QS.length}</small><div class="bar" style="margin:.4rem 0 .8rem"><i style="width:${Q.i/QS.length*100}%"></i></div><blockquote style="margin:.4rem 0 1rem;padding:.8rem;background:var(--bg);border-radius:12px">${esc(q[0])}</blockquote><h3>Is this safe or suspicious?</h3>
+${['Safe','Suspicious'].map((o,j)=>{const right=(j===1)===!!q[1];return `<button class="opt ${r!=null?(right?'ok':(r===j?'no':'')):''}" ${r!=null?'disabled':''} onclick="qAns(${j})">${o}</button>`}).join('')}
+${r!=null?`<div class="note ${(r===1)===!!q[1]?'':'bad'}"><b>${(r===1)===!!q[1]?'Correct!':'Not quite.'} It is ${q[1]?'Suspicious':'Safe'}.</b><br>${q[2]}<br><b>Tip:</b> ${q[3]}</div><button class="btn" onclick="Q.i++;Q.r=null;if(Q.i>=QS.length){const p=Math.round(Q.c/QS.length*100);if(S.qbest==null||p>S.qbest){S.qbest=p;save()}}route()">${Q.i+1>=QS.length?'See results':'Next question'}</button>`:''}</div>`}
+function qAns(j){Q.r=j;if((j===1)===!!QS[Q.i][1])Q.c++;route()}
+/* ---- Learn ---- */
+const LT=[
+['What is saving?','Keeping part of your income aside instead of spending it all.','Asha earns ₹20,000 and sets aside ₹2,000 each month. After a year she has ₹24,000.','Savings protect you from surprises and help you reach goals.','Asha earns ₹10,000 and saves 10%. How much does she save?',['₹100','₹1,000','₹10,000'],1],
+['What is interest?','The price of using money. You pay it on loans and earn it on deposits.','₹10,000 at 5% simple interest earns ₹500 in a year.','It decides whether money works for you or against you.','₹20,000 at 10% simple interest for 1 year earns…',['₹200','₹2,000','₹20,000'],1],
+['What is compound interest?','Interest earned on your earlier interest as well as your original money.','₹10,000 at 10% becomes ₹11,000 after year 1 and ₹12,100 after year 2.','Starting early lets money grow faster and faster.','₹10,000 at 10% compound interest after 2 years becomes…',['₹12,000','₹12,100','₹11,000'],1],
+['What is a loan?','Money you borrow now and repay later, usually with interest.','Borrow ₹50,000 at 12% for a year and you repay about ₹56,000.','Borrow only what you can repay, and compare rates first.','Which loan costs more?',['₹10,000 at 12%','₹10,000 at 24%','They cost the same'],1],
+['What is inflation?','Prices rising over time, so each rupee buys less.','If a ₹100 snack costs ₹106 next year, inflation was 6%.','Your savings need to grow faster than prices.','With 6% inflation, ₹100 of groceries next year costs…',['₹94','₹100','₹106'],2],
+['What is an emergency fund?','Cash kept aside for sudden needs, ideally 3–6 months of expenses.','If you spend ₹15,000 a month, aim for ₹45,000 to ₹90,000.','It stops you from borrowing when trouble hits.','Monthly expenses are ₹10,000. A 3-month fund is…',['₹30,000','₹10,000','₹3,000'],0],
+['What is budgeting?','A plan that tells every rupee where to go before you spend it.','On ₹30,000: ₹15,000 needs, ₹9,000 wants, ₹6,000 savings (the 50/30/20 rule).','It stops overspending and shows where money leaks.','Using 50/30/20 on ₹40,000, savings are…',['₹4,000','₹8,000','₹20,000'],1],
+['What is financial planning?','Setting money goals and deciding how to reach them over months and years.','To buy a ₹60,000 laptop in 12 months, save ₹5,000 every month.','It turns wishes into clear steps.','To save ₹60,000 in 10 months you need each month…',['₹6,000','₹600','₹10,000'],0]];
+let openT=null,ans=null;
+function learnPg(){const d=Object.keys(S.learn).length,p=d/LT.length*100;
+let h=`<div class="card"><h3>Your progress: ${d} of ${LT.length} topics complete</h3><div class="bar"><i style="width:${p}%"></i></div></div><div class="grid">${LT.map((x,i)=>`<button class="opt" onclick="openT=${i};ans=null;route()"><b>${S.learn[i]?'✅ ':''}${x[0]}</b></button>`).join('')}</div>`;
+if(openT!=null){const x=LT[openT];h+=`<div class="card" style="margin-top:1rem"><h3>${x[0]}</h3><p><b>In simple words:</b> ${x[1]}</p><p><b>Example:</b> ${x[2]}</p><p><b>Why it matters:</b> ${x[3]}</p><div class="note"><b>Quick quiz:</b> ${x[4]}</div>${x[5].map((o,j)=>`<button class="opt ${ans!=null?(j===x[6]?'ok':ans===j?'no':''):''}" ${ans!=null&&ans===x[6]?'disabled':''} onclick="lAns(${j})">${o}</button>`).join('')}${ans!=null?`<p><b>${ans===x[6]?'Correct! Topic complete.':'Not quite. Re-read the example and try again.'}</b></p>`:''}</div>`}
+return h}
+function lAns(j){ans=j;if(j===LT[openT][6]){S.learn[openT]=1;save()}route()}
+applyTheme();route();
+</script></body></html>
